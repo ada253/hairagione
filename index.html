@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HaiRagione – Controlla la tua multa</title>
+<meta name="description" content="Hai preso una multa? Scopri gratis in un minuto se è arrivata in ritardo e quali sono le tue scadenze per pagare o fare ricorso.">
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --surface: #ffffff;
+    --text: #141a2b;
+    --muted: #5b6478;
+    --border: #e2e6ef;
+    --primary: #1f4fd8;
+    --primary-ink: #ffffff;
+    --good-bg: #e6f6ec; --good: #157a3c;
+    --warn-bg: #fff4dc; --warn: #8a5a00;
+    --bad-bg: #fde9e9; --bad: #b42323;
+    --neutral-bg: #eef1f7; --neutral: #3d4760;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(20,26,43,.06), 0 8px 24px rgba(20,26,43,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1320;
+      --surface: #171c2c;
+      --text: #e9ecf4;
+      --muted: #9aa3b8;
+      --border: #283049;
+      --primary: #6b8cff;
+      --primary-ink: #0f1320;
+      --good-bg: #12301f; --good: #6fd69a;
+      --warn-bg: #33280f; --warn: #f2c25b;
+      --bad-bg: #3a1717; --bad: #ff8a8a;
+      --neutral-bg: #1f2638; --neutral: #c3cbe0;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+  header { padding: 18px 0; }
+  .logo { font-weight: 800; font-size: 1.2rem; letter-spacing: -.02em; }
+  .logo span { color: var(--primary); }
+
+  .hero { padding: 28px 0 8px; }
+  .hero h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.15; letter-spacing: -.03em; margin: 0 0 14px; }
+  .hero p { color: var(--muted); font-size: 1.1rem; margin: 0 0 22px; max-width: 46ch; }
+  .pill { display: inline-block; font-size: .85rem; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; margin-bottom: 16px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--primary); color: var(--primary-ink);
+    border: 0; border-radius: 10px; padding: 14px 22px;
+    font: inherit; font-weight: 700; font-size: 1rem; cursor: pointer; text-decoration: none;
+  }
+  .btn:hover { filter: brightness(1.07); }
+  .btn:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid color-mix(in srgb, var(--primary) 45%, transparent); outline-offset: 2px; }
+  .btn.block { width: 100%; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 22px; margin: 22px 0;
+  }
+  .card h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+  .card > .sub { color: var(--muted); margin: 0 0 18px; }
+
+  fieldset { border: 0; margin: 0 0 18px; padding: 0; }
+  legend, label.lbl { display: block; font-weight: 650; margin-bottom: 8px; }
+  .hint { display: block; font-size: .88rem; color: var(--muted); font-weight: 400; margin-top: 4px; }
+  .choices { display: grid; gap: 8px; }
+  .choice {
+    display: flex; gap: 10px; align-items: flex-start;
+    border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; cursor: pointer;
+  }
+  .choice:has(input:checked) { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, transparent); }
+  .choice input { margin-top: 4px; accent-color: var(--primary); }
+  input[type=date], input[type=email], select {
+    width: 100%; font: inherit; color: var(--text);
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px;
+  }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+  .field { margin-bottom: 18px; }
+  .error { color: var(--bad); font-weight: 600; margin: 0 0 14px; }
+  [hidden] { display: none !important; }
+
+  #result { scroll-margin-top: 16px; }
+  .verdict { border-radius: 12px; padding: 16px 18px; margin-bottom: 18px; }
+  .verdict h3 { margin: 0 0 6px; font-size: 1.15rem; }
+  .verdict p { margin: 0; }
+  .v-good { background: var(--good-bg); color: var(--good); }
+  .v-warn { background: var(--warn-bg); color: var(--warn); }
+  .v-none { background: var(--neutral-bg); color: var(--neutral); }
+  .verdict p { color: var(--text); }
+
+  h4 { margin: 20px 0 10px; font-size: 1rem; }
+  .deadlines { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .deadlines li {
+    display: flex; justify-content: space-between; gap: 12px; align-items: center;
+    border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+  }
+  .deadlines .what { font-weight: 600; }
+  .deadlines .what small { display: block; font-weight: 400; color: var(--muted); }
+  .deadlines .when { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .deadlines .when small { display: block; }
+  @media (max-width: 480px) {
+    .deadlines li { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .deadlines .when { text-align: left; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  }
+  .tag { font-size: .8rem; font-weight: 700; border-radius: 999px; padding: 2px 8px; }
+  .tag.ok { background: var(--good-bg); color: var(--good); }
+  .tag.soon { background: var(--warn-bg); color: var(--warn); }
+  .tag.late { background: var(--bad-bg); color: var(--bad); }
+  .advice { background: var(--neutral-bg); border-radius: 12px; padding: 14px 16px; }
+  .advice p { margin: 0 0 8px; } .advice p:last-child { margin: 0; }
+  .notes { font-size: .9rem; color: var(--muted); margin: 14px 0 0; padding-left: 18px; }
+  .notes li { margin-bottom: 4px; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 0; padding: 0; list-style: none; }
+  @media (max-width: 640px) { .steps { grid-template-columns: 1fr; } }
+  .steps li { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .steps b { display: block; margin-bottom: 4px; }
+  .steps .n { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: var(--primary-ink); font-weight: 800; margin-bottom: 8px; }
+  .steps p { margin: 0; color: var(--muted); font-size: .95rem; }
+
+  section > h2 { font-size: 1.35rem; letter-spacing: -.02em; margin: 36px 0 14px; }
+  .soon-list { margin: 0 0 18px; padding-left: 20px; }
+  .soon-list li { margin-bottom: 4px; }
+  .consent { display: flex; gap: 10px; align-items: flex-start; font-size: .9rem; color: var(--muted); margin: 12px 0 16px; }
+  .consent input { margin-top: 4px; accent-color: var(--primary); }
+  .form-msg { margin: 12px 0 0; font-weight: 600; }
+
+  details { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+  summary { font-weight: 650; cursor: pointer; }
+  details p { margin: 10px 0 0; color: var(--muted); }
+
+  footer { color: var(--muted); font-size: .85rem; padding: 30px 0 40px; border-top: 1px solid var(--border); margin-top: 40px; }
+  footer p { margin: 0 0 8px; }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <div class="logo">Hai<span>Ragione</span></div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <span class="pill">Gratis · 1 minuto · Nessuna registrazione</span>
+    <h1>Hai preso una multa?<br>Scopri se puoi contestarla.</h1>
+    <p>Controlliamo se ti è arrivata in ritardo e ti diciamo entro quando pagare con lo sconto o fare ricorso.</p>
+    <a class="btn" href="#check">Controlla la tua multa</a>
+  </section>
+
+  <!-- CONTROLLO -->
+  <section id="check" class="card">
+    <h2>Controlla la tua multa</h2>
+    <p class="sub">Prendi in mano il verbale e rispondi a queste domande.</p>
+
+    <form id="checkForm" novalidate>
+      <fieldset>
+        <legend>Come hai ricevuto la multa?</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="mode" value="posta" checked>
+            <span>Mi è arrivata a casa, per posta o via PEC</span></label>
+          <label class="choice"><input type="radio" name="mode" value="sulposto">
+            <span>Mi hanno fermato e consegnato il verbale sul posto</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Dove risiedi?</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="res" value="it" checked><span>In Italia</span></label>
+          <label class="choice"><input type="radio" name="res" value="estero"><span>All'estero</span></label>
+        </div>
+      </fieldset>
+
+      <div class="row">
+        <div class="field">
+          <label class="lbl" for="dInfr">Data dell'infrazione
+            <span class="hint">È scritta sul verbale.</span></label>
+          <input type="date" id="dInfr" required>
+        </div>
+        <div class="field" id="fRic">
+          <label class="lbl" for="dRic">Data in cui l'hai ricevuta
+            <span class="hint">Il giorno in cui il postino te l'ha consegnata o è arrivata la PEC.</span></label>
+          <input type="date" id="dRic">
+        </div>
+      </div>
+
+      <div class="field" id="fSped">
+        <label class="lbl" for="dSped">Data di spedizione (facoltativa)
+          <span class="hint">A volte è indicata sulla busta o sull'avviso di ricevimento. Se non la trovi, lascia vuoto.</span></label>
+        <input type="date" id="dSped">
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="susp">La multa prevede la sospensione della patente o la confisca del veicolo?
+          <span class="hint">Se sì, di solito è scritto chiaramente sul verbale.</span></label>
+        <select id="susp">
+          <option value="no">No</option>
+          <option value="si">Sì</option>
+          <option value="nonso">Non lo so</option>
+        </select>
+      </div>
+
+      <p class="error" id="formError" role="alert" hidden></p>
+      <button class="btn block" type="submit">Controlla</button>
+    </form>
+  </section>
+
+  <!-- RISULTATO -->
+  <section id="result" class="card" hidden aria-live="polite">
+    <h2>Il risultato</h2>
+    <div id="verdict" class="verdict"></div>
+    <h4>Le tue scadenze</h4>
+    <ul class="deadlines" id="deadlines"></ul>
+    <h4>Cosa ti consigliamo</h4>
+    <div class="advice" id="advice"></div>
+    <ul class="notes" id="notes"></ul>
+    <p style="margin:18px 0 0"><a class="btn" href="#waitlist">Voglio il ricorso pronto</a></p>
+  </section>
+
+  <!-- COME FUNZIONA -->
+  <section>
+    <h2>Come funziona</h2>
+    <ol class="steps">
+      <li><span class="n">1</span><b>Inserisci le date</b><p>Bastano le date scritte sul verbale e sulla busta.</p></li>
+      <li><span class="n">2</span><b>Scopri se ci sono vizi</b><p>Ti diciamo con onestà se conviene fare ricorso o pagare con lo sconto.</p></li>
+      <li><span class="n">3</span><b>Ricevi il ricorso pronto</b><p>Presto: il ricorso già scritto, da firmare e inviare. <em>In arrivo.</em></p></li>
+    </ol>
+  </section>
+
+  <!-- LISTA D'ATTESA -->
+  <section id="waitlist" class="card">
+    <h2>Il ricorso pronto in pochi minuti</h2>
+    <p class="sub">Stiamo preparando le prossime funzioni. Lascia la tua email e ti avvisiamo appena sono pronte.</p>
+    <ul class="soon-list">
+      <li>Ricorso al Prefetto o al Giudice di Pace già scritto, da firmare</li>
+      <li>Lettura automatica dalla foto del verbale</li>
+      <li>Controllo di altri vizi: errori nei dati, autovelox, segnaletica</li>
+    </ul>
+    <form id="waitForm" novalidate>
+      <label class="lbl" for="email">La tua email</label>
+      <input type="email" id="email" autocomplete="email" placeholder="nome@esempio.it" required>
+      <label class="consent"><input type="checkbox" id="consent" required>
+        <span>Acconsento a ricevere un'email quando il servizio sarà disponibile. Potrò cancellarmi in ogni momento. Ho letto l'<a href="privacy.html">informativa privacy</a>.</span></label>
+      <button class="btn block" type="submit">Avvisami</button>
+      <p class="form-msg" id="waitMsg" role="status" hidden></p>
+    </form>
+  </section>
+
+  <!-- FAQ -->
+  <section>
+    <h2>Domande frequenti</h2>
+    <details>
+      <summary>Se pago la multa, posso ancora fare ricorso?</summary>
+      <p>No. Pagare significa accettare la multa: dopo non puoi più contestarla. Se pensi che ci sia un errore, decidi prima di pagare.</p>
+    </details>
+    <details>
+      <summary>Meglio il ricorso al Prefetto o al Giudice di Pace?</summary>
+      <p>Devi sceglierne uno solo: se fai ricorso al Prefetto, non puoi più andare dal Giudice di Pace per la stessa multa. Al Prefetto è gratis, hai 60 giorni e puoi inviarlo con raccomandata A/R o PEC, ma se lo perdi la sanzione sarà almeno il doppio del minimo. Al Giudice di Pace hai 30 giorni e paghi un contributo (circa 43 €), ma se perdi paghi in genere l'importo senza sconto.</p>
+    </details>
+    <details>
+      <summary>La multa mi è arrivata dopo più di 90 giorni: è nulla?</summary>
+      <p>Non sempre. Conta la data in cui l'ente l'ha spedita, non quella in cui l'hai ricevuta. Inoltre, in alcuni casi (auto aziendali, a noleggio o appena vendute) i 90 giorni partono più tardi. Per questo il nostro controllo ti dice "possibile vizio" e non "multa annullata".</p>
+    </details>
+    <details>
+      <summary>I dati della mia multa vengono salvati?</summary>
+      <p>No. Il controllo avviene interamente sul tuo dispositivo: le date che inserisci non vengono inviate a nessuno.</p>
+    </details>
+  </section>
+
+</main>
+
+<footer class="wrap" id="privacy">
+  <p><strong>HaiRagione</strong> è uno strumento informativo per aiutarti a capire la tua multa e a far valere da solo i tuoi diritti. Non è consulenza legale e non sostituisce un avvocato. Controlla sempre le informazioni sul tuo verbale.</p>
+  <p>Riferimenti: artt. 201, 202, 203, 204 e 204-bis del Codice della Strada (D.Lgs. 285/1992); art. 7 del D.Lgs. 150/2011.</p>
+  <p>Privacy: il controllo della multa avviene sul tuo dispositivo. Se lasci la tua email, la conserviamo su un server nell'Unione Europea e la usiamo solo per avvisarti dell'apertura del servizio. Puoi chiederne la cancellazione in ogni momento. <a href="privacy.html">Informativa privacy completa</a>.</p>
+</footer>
+
+<script>
+  // Supabase: incolla qui i valori dal pannello del progetto (Project Settings → API).
+  // La chiave "anon"/"publishable" è pubblica per natura: la protezione la fanno le regole RLS (vedi supabase.sql).
+  // Se restano vuoti, il modulo funziona in modalità prova e non salva nulla.
+  const SUPABASE_URL = 'https://ljenzpgvpbshctpratpo.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_um_bLdK5yrUHoqDmiBFmxQ_mk-EHql6';
+
+  const DAY = 86400000;
+  const $ = (s) => document.querySelector(s);
+
+  function parseDate(v) {
+    if (!v) return null;
+    const [y, m, d] = v.split('-').map(Number);
+    return Date.UTC(y, m - 1, d);
+  }
+  function todayUTC() {
+    const n = new Date();
+    return Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+  }
+  const addDays = (t, n) => t + n * DAY;
+  const diffDays = (a, b) => Math.round((b - a) / DAY);
+  const fmt = (t) => new Date(t).toLocaleDateString('it-IT', { timeZone: 'UTC', day: 'numeric', month: 'long', year: 'numeric' });
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // Mostra/nasconde i campi di notifica in base alla modalità
+  function syncMode() {
+    const sulPosto = document.querySelector('input[name=mode]:checked').value === 'sulposto';
+    $('#fRic').hidden = sulPosto;
+    $('#fSped').hidden = sulPosto;
+  }
+  document.querySelectorAll('input[name=mode]').forEach((r) => r.addEventListener('change', syncMode));
+  syncMode();
+
+  function showError(msg) {
+    const e = $('#formError');
+    e.textContent = msg;
+    e.hidden = !msg;
+    if (msg) $('#result').hidden = true;
+  }
+
+  function deadlineItem(label, sub, date, today) {
+    const left = diffDays(today, date);
+    let tag;
+    if (left < 0) tag = '<span class="tag late">Scaduto</span>';
+    else if (left === 0) tag = '<span class="tag soon">Scade oggi</span>';
+    else if (left <= 5) tag = `<span class="tag soon">${left === 1 ? 'Manca 1 giorno' : 'Mancano ' + left + ' giorni'}</span>`;
+    else tag = `<span class="tag ok">Mancano ${left} giorni</span>`;
+    return `<li><span class="what">${label}<small>${sub}</small></span><span class="when">${fmt(date)}<small>${tag}</small></span></li>`;
+  }
+
+  $('#checkForm').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    showError('');
+
+    const sulPosto = document.querySelector('input[name=mode]:checked').value === 'sulposto';
+    const estero = document.querySelector('input[name=res]:checked').value === 'estero';
+    const infr = parseDate($('#dInfr').value);
+    const ric = sulPosto ? null : parseDate($('#dRic').value);
+    const sped = sulPosto ? null : parseDate($('#dSped').value);
+    const susp = $('#susp').value;
+    const today = todayUTC();
+
+    if (!infr) return showError("Inserisci la data dell'infrazione.");
+    if (infr > today) return showError("La data dell'infrazione non può essere nel futuro.");
+    if (!sulPosto) {
+      if (!ric) return showError('Inserisci la data in cui hai ricevuto la multa.');
+      if (ric > today) return showError('La data di ricezione non può essere nel futuro.');
+      if (ric < infr) return showError("La data di ricezione non può essere precedente all'infrazione.");
+      if (sped && (sped < infr || sped > ric)) return showError("La data di spedizione deve essere tra l'infrazione e la ricezione.");
+    }
+
+    const limit = estero ? 360 : 90;
+    const base = sulPosto ? infr : ric; // da qui partono le scadenze
+    let kind, title, text;
+
+    // 1) Controllo del termine di notifica (art. 201 CdS)
+    if (sulPosto) {
+      kind = 'none';
+      title = 'Multa consegnata sul posto';
+      text = 'Quando il verbale ti viene consegnato subito, il limite dei ' + limit + ' giorni per la notifica non si applica. Possono esserci altri errori (dati sbagliati, segnaletica…) che presto potrai controllare qui.';
+    } else if (sped) {
+      const d = diffDays(infr, sped);
+      if (d > limit) {
+        kind = 'good';
+        title = 'Possibile vizio: notifica in ritardo';
+        text = `La multa risulta spedita ${d} giorni dopo l'infrazione, ma il limite è di ${limit} giorni. È un motivo di ricorso molto comune.`;
+      } else {
+        kind = 'none';
+        title = 'Notifica nei termini';
+        text = `La multa risulta spedita ${d} giorni dopo l'infrazione, entro il limite di ${limit} giorni. Su questo punto non vediamo errori.`;
+      }
+    } else {
+      const d = diffDays(infr, ric);
+      if (d > limit + 20) {
+        kind = 'good';
+        title = 'Possibile vizio: notifica in ritardo';
+        text = `Hai ricevuto la multa ${d} giorni dopo l'infrazione, molto oltre il limite di ${limit} giorni. Conta la data di spedizione, ma con un ritardo così ampio è probabile che anche quella sia fuori termine.`;
+      } else if (d > limit) {
+        kind = 'warn';
+        title = 'Da verificare: ricevuta dopo il limite';
+        text = `Hai ricevuto la multa ${d} giorni dopo l'infrazione (limite: ${limit}). Però conta la data in cui l'ente l'ha spedita: se l'ha spedita entro ${limit} giorni la multa è valida anche se ti è arrivata dopo. Cerca la data di spedizione sulla busta o sull'avviso.`;
+      } else {
+        kind = 'none';
+        title = 'Notifica nei termini';
+        text = `Hai ricevuto la multa ${d} giorni dopo l'infrazione, entro il limite di ${limit} giorni. Su questo punto non vediamo errori.`;
+      }
+    }
+
+    const vClass = { good: 'v-good', warn: 'v-warn', none: 'v-none' }[kind];
+    const v = $('#verdict');
+    v.className = 'verdict ' + vClass;
+    v.innerHTML = `<h3>${esc(title)}</h3><p>${esc(text)}</p>`;
+
+    // 2) Scadenze (artt. 202, 203, 204-bis CdS)
+    const scontoEnd = addDays(base, 5);
+    const minEnd = addDays(base, 60);
+    const gdpEnd = addDays(base, estero ? 60 : 30);
+    const prefEnd = addDays(base, 60);
+    const items = [];
+    if (susp !== 'si') {
+      items.push(deadlineItem('Pagare con lo sconto del 30%', susp === 'nonso' ? 'Solo se la multa non prevede sospensione della patente o confisca' : 'Entro 5 giorni dalla notifica', scontoEnd, today));
+    }
+    items.push(deadlineItem('Pagare l\'importo minimo', 'Entro 60 giorni dalla notifica', minEnd, today));
+    items.push(deadlineItem('Ricorso al Giudice di Pace', `Entro ${estero ? 60 : 30} giorni · contributo di circa 43 €`, gdpEnd, today));
+    items.push(deadlineItem('Ricorso al Prefetto', 'Entro 60 giorni · gratuito', prefEnd, today));
+    $('#deadlines').innerHTML = items.join('');
+
+    // 3) Consiglio
+    const scontoOpen = susp !== 'si' && today <= scontoEnd;
+    const ricorsoOpen = today <= prefEnd;
+    const gdpOpen = today <= gdpEnd;
+    let advice = '';
+    if (kind === 'good' || kind === 'warn') {
+      if (ricorsoOpen) {
+        advice += '<p><strong>Non pagare prima di aver deciso.</strong> Se paghi accetti la multa e non puoi più fare ricorso.</p>';
+        if (kind === 'warn') advice += '<p>Prima di tutto cerca la data di spedizione e ripeti il controllo inserendola: è il dato che decide.</p>';
+        if (scontoOpen) advice += `<p>Hai tempo fino al <strong>${fmt(scontoEnd)}</strong> per pagare con lo sconto, se dopo la verifica decidi di non contestarla.</p>`;
+        advice += `<p>Puoi fare ricorso al Prefetto entro il <strong>${fmt(prefEnd)}</strong>${gdpOpen ? ` oppure al Giudice di Pace entro il <strong>${fmt(gdpEnd)}</strong> (uno dei due, non entrambi)` : ''}.</p>`;
+      } else {
+        advice += '<p>Il possibile vizio c\'è, ma i termini per il ricorso sembrano scaduti. Se nel frattempo ti è arrivata una cartella o un sollecito, potrebbero esserci altre strade: in quel caso conviene sentire un avvocato o un\'associazione di consumatori.</p>';
+      }
+    } else {
+      if (scontoOpen) {
+        advice += `<p>Non abbiamo trovato vizi di notifica. Se non hai altri motivi per contestarla, di solito conviene <strong>pagare entro il ${fmt(scontoEnd)}</strong> con lo sconto del 30%.</p>`;
+      } else if (today <= minEnd) {
+        advice += `<p>Non abbiamo trovato vizi di notifica. Se non hai altri motivi per contestarla, paga l'importo minimo entro il <strong>${fmt(minEnd)}</strong>: dopo l'importo aumenta.</p>`;
+      } else {
+        advice += '<p>Non abbiamo trovato vizi di notifica e i termini per pagare l\'importo minimo sembrano passati: l\'importo potrebbe essere aumentato. Paga il prima possibile per evitare altri costi.</p>';
+      }
+      if (ricorsoOpen) advice += '<p>Se pensi che ci siano altri errori (dati sbagliati, targa non tua, segnaletica assente), puoi ancora valutare un ricorso.</p>';
+    }
+    $('#advice').innerHTML = advice;
+
+    // 4) Avvertenze
+    const notes = [];
+    if (!sulPosto) {
+      notes.push('Se hai ritirato la multa in posta dopo un avviso di giacenza, la notifica può valere da prima (di solito 10 giorni dopo l\'avviso): in quel caso le tue scadenze arrivano prima.');
+      notes.push('Il limite dei ' + limit + ' giorni parte dall\'accertamento: per auto aziendali, a noleggio o appena vendute può partire più tardi.');
+    }
+    notes.push('Risultato indicativo, non è consulenza legale. Verifica sempre sul tuo verbale.');
+    $('#notes').innerHTML = notes.map((n) => `<li>${esc(n)}</li>`).join('');
+
+    const r = $('#result');
+    r.hidden = false;
+    r.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // Lista d'attesa
+  $('#waitForm').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const msg = $('#waitMsg');
+    const btn = ev.target.querySelector('button[type=submit]');
+    const email = $('#email').value.trim().toLowerCase();
+    msg.hidden = false;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) { msg.textContent = 'Inserisci un indirizzo email valido.'; return; }
+    if (!$('#consent').checked) { msg.textContent = 'Per iscriverti devi accettare di ricevere l\'avviso.'; return; }
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) { msg.textContent = 'Modalità prova: il modulo non è ancora collegato, nessuna email è stata salvata.'; return; }
+
+    const headers = { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Prefer': 'return=minimal' };
+    // Le vecchie chiavi "anon" (JWT) vanno anche nell'header Authorization; le nuove "sb_publishable_" no.
+    if (!SUPABASE_ANON_KEY.startsWith('sb_')) headers['Authorization'] = 'Bearer ' + SUPABASE_ANON_KEY;
+
+    btn.disabled = true;
+    msg.textContent = 'Invio in corso…';
+    try {
+      const res = await fetch(SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/waitlist', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ email, consenso: true, fonte: 'landing-multe' })
+      });
+      if (res.status === 409) {
+        msg.textContent = 'Sei già nella lista: ti avviseremo appena il servizio è pronto.';
+        ev.target.reset();
+      } else if (res.ok) {
+        msg.textContent = 'Fatto! Ti avviseremo appena il servizio è pronto.';
+        ev.target.reset();
+      } else {
+        throw new Error('HTTP ' + res.status);
+      }
+    } catch (err) {
+      console.error('Iscrizione non riuscita:', err);
+      msg.textContent = 'Qualcosa è andato storto. Riprova tra poco.';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
