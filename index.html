@@ -5,6 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HaiRagione – Controlla la tua multa</title>
 <meta name="description" content="Hai preso una multa? Scopri gratis in un minuto se è arrivata in ritardo e quali sono le tue scadenze per pagare o fare ricorso.">
+<link rel="canonical" href="https://ada253.github.io/hairagione/">
+<meta name="theme-color" content="#1f4fd8">
+
+<!-- App installabile -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HaiRagione">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<!-- Anteprima sui social e su WhatsApp -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="HaiRagione">
+<meta property="og:locale" content="it_IT">
+<meta property="og:title" content="Hai preso una multa? Controlla gratis se puoi contestarla">
+<meta property="og:description" content="In 1 minuto scopri se la multa ti è arrivata in ritardo ed entro quando pagare con lo sconto o fare ricorso. Gratis, senza registrazione.">
+<meta property="og:url" content="https://ada253.github.io/hairagione/">
+<meta property="og:image" content="https://ada253.github.io/hairagione/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="HaiRagione: controlla gratis la tua multa">
+<meta name="twitter:card" content="summary_large_image">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "HaiRagione",
+  "url": "https://ada253.github.io/hairagione/",
+  "description": "Controllo gratuito delle multe: verifica se la notifica è arrivata in ritardo e calcola le scadenze per pagare con lo sconto o fare ricorso.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Tutti",
+  "inLanguage": "it",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+}
+</script>
 <style>
   :root {
     --bg: #f6f7fb;
@@ -160,14 +198,39 @@
   .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
   .small-note { font-size: .88rem; color: var(--muted); margin: 10px 0 16px; }
 
+  .site-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  a.logo { color: var(--text); text-decoration: none; }
+  .nav-link {
+    font-weight: 650; font-size: .92rem; color: var(--primary); text-decoration: none;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px;
+  }
+  .trust { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--muted); font-size: .92rem; }
+  .trust li::before { content: "✓ "; color: var(--good); font-weight: 800; }
+  .share { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .share p { margin: 0 0 12px; }
+  .os-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  @media (max-width: 640px) { .os-grid { grid-template-columns: 1fr; } }
+  .os-card { border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .os-card h3 { margin: 0 0 8px; font-size: 1.05rem; }
+  .os-card ol { margin: 0; padding-left: 20px; }
+  .os-card li { margin-bottom: 6px; }
+  .is-ios .os-ios, .is-android .os-android { order: -1; border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+  .os-tag { font-size: .75rem; font-weight: 700; color: var(--primary); margin-left: 6px; display: none; }
+  .is-ios .os-ios .os-tag, .is-android .os-android .os-tag { display: inline; }
+  .install-done { color: var(--good); font-weight: 700; margin: 0; }
+  .ico { width: 1.1em; height: 1.1em; vertical-align: -0.2em; }
+  .footer-links { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 12px; }
+  .footer-links a { color: var(--muted); }
+
   footer { color: var(--muted); font-size: .85rem; padding: 30px 0 40px; border-top: 1px solid var(--border); margin-top: 40px; }
   footer p { margin: 0 0 8px; }
 </style>
 </head>
 <body>
 
-<header class="wrap">
-  <div class="logo">Hai<span>Ragione</span></div>
+<header class="wrap site-header">
+  <a class="logo" href="./">Hai<span>Ragione</span></a>
+  <a class="nav-link" id="navInstall" href="#installa">Installa l'app</a>
 </header>
 
 <main class="wrap">
@@ -177,6 +240,11 @@
     <h1>Hai preso una multa?<br>Scopri se puoi contestarla.</h1>
     <p>Controlliamo se ti è arrivata in ritardo e ti diciamo entro quando pagare con lo sconto o fare ricorso.</p>
     <a class="btn" href="#check">Controlla la tua multa</a>
+    <ul class="trust">
+      <li>Regole verificate sul Codice della Strada</li>
+      <li>I dati della multa restano sul tuo telefono</li>
+      <li>Si installa come un'app</li>
+    </ul>
   </section>
 
   <!-- CONTROLLO -->
@@ -246,7 +314,13 @@
     <h4>Cosa ti consigliamo</h4>
     <div class="advice" id="advice"></div>
     <ul class="notes" id="notes"></ul>
-    <p style="margin:18px 0 0"><a class="btn" href="#waitlist">Voglio il ricorso pronto</a></p>
+    <div class="share">
+      <p><strong>Conosci qualcuno che ha preso una multa?</strong> Mandagli il controllo gratuito.</p>
+      <div class="help-actions">
+        <button class="btn outline" type="button" id="shareBtn">Condividi con un amico</button>
+        <a class="btn" href="#waitlist">Voglio il ricorso pronto</a>
+      </div>
+    </div>
   </section>
 
   <!-- COME FUNZIONA -->
@@ -299,6 +373,38 @@
     </details>
   </section>
 
+  <!-- INSTALLA -->
+  <section id="installa" class="card">
+    <h2>Installa l'app sul telefono</h2>
+    <p class="sub">HaiRagione si apre come un'app, con un tocco dalla schermata Home. Gratis e senza passare dagli store.</p>
+    <p class="install-done" id="installDone" hidden>✓ Stai già usando l'app installata.</p>
+    <div class="install-body">
+      <button class="btn block" type="button" id="installBtn" hidden>Installa l'app</button>
+      <div class="os-grid">
+        <div class="os-card os-ios">
+          <h3>iPhone <span class="os-tag">· il tuo telefono</span></h3>
+          <ol>
+            <li>Apri questa pagina con <strong>Safari</strong>.</li>
+            <li>Tocca il pulsante <strong>Condividi</strong>
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="icona Condividi"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>
+              (il quadrato con la freccia verso l'alto).</li>
+            <li>Scorri e tocca <strong>Aggiungi alla schermata Home</strong>.</li>
+            <li>Tocca <strong>Aggiungi</strong> in alto a destra.</li>
+          </ol>
+        </div>
+        <div class="os-card os-android">
+          <h3>Android <span class="os-tag">· il tuo telefono</span></h3>
+          <ol>
+            <li>Apri questa pagina con <strong>Chrome</strong>.</li>
+            <li>Tocca il menu <strong>⋮</strong> in alto a destra.</li>
+            <li>Tocca <strong>Installa app</strong> oppure <strong>Aggiungi a schermata Home</strong>.</li>
+            <li>Conferma con <strong>Installa</strong>.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- AIUTO -->
   <section id="aiuto" class="card">
     <h2>Hai bisogno di aiuto?</h2>
@@ -331,9 +437,16 @@
 </main>
 
 <footer class="wrap" id="privacy">
+  <nav class="footer-links" aria-label="Link utili">
+    <a href="privacy.html">Privacy</a>
+    <a href="termini.html">Termini d'uso</a>
+    <a href="#aiuto">Assistenza</a>
+    <a href="#installa">Installa l'app</a>
+  </nav>
   <p><strong>HaiRagione</strong> è uno strumento informativo per aiutarti a capire la tua multa e a far valere da solo i tuoi diritti. Non è consulenza legale e non sostituisce un avvocato. Controlla sempre le informazioni sul tuo verbale.</p>
   <p>Riferimenti: artt. 201, 202, 203, 204 e 204-bis del Codice della Strada (D.Lgs. 285/1992); art. 7 del D.Lgs. 150/2011.</p>
   <p>Privacy: il controllo della multa avviene sul tuo dispositivo. Se lasci la tua email, la conserviamo su un server nell'Unione Europea e la usiamo solo per avvisarti dell'apertura del servizio. Puoi chiederne la cancellazione in ogni momento. <a href="privacy.html">Informativa privacy completa</a>.</p>
+  <p>© 2026 HaiRagione</p>
 </footer>
 
 <script>
@@ -498,6 +611,8 @@
     notes.push('Risultato indicativo, non è consulenza legale. Verifica sempre sul tuo verbale.');
     $('#notes').innerHTML = notes.map((n) => `<li>${esc(n)}</li>`).join('');
 
+    track('controllo', sulPosto ? 'sulposto' : kind);
+
     const r = $('#result');
     r.hidden = false;
     r.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -530,6 +645,7 @@
         msg.textContent = 'Sei già nella lista: ti avviseremo appena il servizio è pronto.';
         ev.target.reset();
       } else if (res.ok) {
+        track('iscrizione');
         msg.textContent = 'Fatto! Ti avviseremo appena il servizio è pronto.';
         ev.target.reset();
       } else {
@@ -582,6 +698,7 @@
         body: JSON.stringify({ messaggio, email: email || null, pagina: location.pathname.slice(0, 200) })
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
+      track('segnalazione');
       status.textContent = email
         ? 'Grazie! Abbiamo ricevuto la tua segnalazione e ti risponderemo via email.'
         : 'Grazie! Abbiamo ricevuto la tua segnalazione.';
@@ -593,6 +710,77 @@
       btn.disabled = false;
     }
   });
+
+  // Statistiche anonime: nessun cookie, nessun indirizzo IP, nessun dato personale.
+  const qs = new URLSearchParams(location.search);
+  const IS_APP = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const UA = navigator.userAgent;
+  const IS_IOS = /iphone|ipad|ipod/i.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const IS_ANDROID = /android/i.test(UA);
+  const DISPOSITIVO = IS_IOS ? 'ios' : IS_ANDROID ? 'android' : 'desktop';
+  const FONTE = (qs.get('src') || qs.get('utm_source') || (IS_APP ? 'app' : ''))
+    .toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 30) || null;
+
+  function track(tipo, dettaglio) {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+    try {
+      fetch(SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/eventi', {
+        method: 'POST',
+        headers: sbHeaders(),
+        keepalive: true,
+        body: JSON.stringify({ tipo, dettaglio: dettaglio || null, fonte: FONTE, dispositivo: DISPOSITIVO })
+      }).catch(() => {});
+    } catch (e) { /* le statistiche non devono mai bloccare il sito */ }
+  }
+  track('visita');
+
+  document.querySelectorAll('a[href^="https://wa.me/393801707367"]').forEach((a) =>
+    a.addEventListener('click', () => track('whatsapp')));
+
+  // Condividi con un amico
+  const SHARE_URL = 'https://ada253.github.io/hairagione/?src=condivisione';
+  const SHARE_TEXT = 'Hai preso una multa? Controlla gratis in 1 minuto se puoi contestarla:';
+  $('#shareBtn').addEventListener('click', async () => {
+    track('condivisione');
+    if (navigator.share) {
+      try { await navigator.share({ title: 'HaiRagione', text: SHARE_TEXT, url: SHARE_URL }); } catch (e) { /* annullato */ }
+      return;
+    }
+    window.open('https://wa.me/?text=' + encodeURIComponent(SHARE_TEXT + ' ' + SHARE_URL), '_blank', 'noopener');
+  });
+
+  // Installa l'app
+  const installSection = $('#installa');
+  let deferredPrompt = null;
+  if (IS_APP) {
+    installSection.querySelector('.install-body').hidden = true;
+    $('#installDone').hidden = false;
+    $('#navInstall').hidden = true;
+  } else if (IS_IOS) {
+    installSection.classList.add('is-ios');
+  } else if (IS_ANDROID) {
+    installSection.classList.add('is-android');
+  }
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    $('#installBtn').hidden = false;
+  });
+  $('#installBtn').addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    try { await deferredPrompt.userChoice; } catch (e) { /* ignorato */ }
+    deferredPrompt = null;
+    $('#installBtn').hidden = true;
+  });
+  window.addEventListener('appinstalled', () => {
+    $('#installBtn').hidden = true;
+    track('installa', DISPOSITIVO);
+  });
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+  }
 </script>
 </body>
 </html>

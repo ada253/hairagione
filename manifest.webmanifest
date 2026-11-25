@@ -1,0 +1,20 @@
+{
+  "name": "HaiRagione – Controlla la tua multa",
+  "short_name": "HaiRagione",
+  "description": "Controlla gratis se la tua multa è arrivata in ritardo e calcola le scadenze per pagare con lo sconto o fare ricorso.",
+  "lang": "it",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./?src=app",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f7fb",
+  "theme_color": "#1f4fd8",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
